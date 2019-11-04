@@ -89,3 +89,12 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int 
+sys_mysyscall(void){
+  struct proc_info *passed_list;
+  if (argptr(0, (void*)&passed_list, sizeof(*passed_list)) < 0)
+    return -1;
+  mysyscall(passed_list);
+  return 0;
+}

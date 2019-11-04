@@ -496,6 +496,27 @@ kill(int pid)
   return -1;
 }
 
+//////////////////////
+void mysyscall(struct proc_info *passed_list){
+
+  // struct proc_info* all_proc_infos[NPROC];
+  struct proc *p;
+  acquire(&ptable.lock); 
+
+  int i=0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNING || p->state == RUNNABLE){
+
+      (passed_list+i)->pid = p -> pid;
+      (passed_list+i)->memsize = p -> sz;
+
+      i++; 
+    }
+  }
+  release(&ptable.lock);
+}
+
+
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
