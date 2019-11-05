@@ -499,7 +499,6 @@ kill(int pid)
 //////////////////////
 void mysyscall(struct proc_info *passed_list){
 
-  // struct proc_info* all_proc_infos[NPROC];
   struct proc *p;
   acquire(&ptable.lock); 
 
@@ -509,8 +508,6 @@ void mysyscall(struct proc_info *passed_list){
 
       (passed_list+i)->pid = p -> pid;
       (passed_list+i)->memsize = p -> sz;
-      // cprintf("%d\n", p->pid);
-      // cprintf("%d\n", p->sz);
       i++; 
     }
   }
@@ -522,8 +519,34 @@ void mysyscall(struct proc_info *passed_list){
     cprintf("IN PROC.C PID %d\n", (passed_list+i) -> pid);
     cprintf("IN PROC.C MEMSIZE %d\n", (passed_list+i) -> memsize);
     }
-
   }
+
+  for (int i = 0; i < NPROC; i++) {
+        struct proc_info *first = (passed_list + i);
+
+        if(first-> pid == 0)
+            break;
+
+        for (int j = i+1; j < NPROC; j++) {
+        struct proc_info *second = (passed_list + j);
+
+            if(second-> pid == 0)
+                break;
+
+            if(second->memsize < first->memsize){
+                
+                int current_memory =first->memsize;
+                int current_pid = first->pid;
+                
+                first->pid = second->pid;
+                second->pid = current_pid;
+                
+                first->memsize = second->memsize;
+                second->memsize = current_memory;
+            }
+        }
+    }
+
 
   release(&ptable.lock);
 

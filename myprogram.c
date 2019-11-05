@@ -14,22 +14,30 @@ int main(void)
     int fres = fork();
     
     if (fres == 0){
-        for (int i=0; i<1000; i++){
-            int *blah = malloc(13 * sizeof(char *));
-            *blah = 1;
-        }
+        // for (int i=0; i<1000; i++){
+        //     int *blah = malloc(13 * sizeof(char *));
+        //     *blah = 1;
+        // }
+        int *blah = malloc(5009000 * sizeof(char *));
+        for (int i=0; i<5000000000; i++)
+            *blah = 2;
+
     }
     else if (fres > 0){
         int rc = fork();
 
         if (rc == 0){
-            for (int i=0; i<100000; i++){
-            int *blah = malloc(47 * sizeof(char *));
-            *blah = 1;
-        }
+            // for (int i=0; i<100000; i++){
+            // int *blah = malloc(47 * sizeof(char *));
+            // *blah = 1;
+            int *blah = malloc(500000 * sizeof(char *));
+            for (int i=0; i<5000000000; i++)
+                *blah = 2;
+        
         }
 
-        if(rc > 0){
+        else if(rc > 0){
+            sleep(50);
                 mysyscall(passed_list);
             for (int i=0; i<NPROC; i++){
 
