@@ -509,11 +509,25 @@ void mysyscall(struct proc_info *passed_list){
 
       (passed_list+i)->pid = p -> pid;
       (passed_list+i)->memsize = p -> sz;
-
+      // cprintf("%d\n", p->pid);
+      // cprintf("%d\n", p->sz);
       i++; 
     }
   }
+
+  for (int i=0; i<NPROC; i++){
+
+    if ( ((passed_list+i) -> pid != 0) && ((passed_list+i) -> memsize != 0)){
+    
+    cprintf("IN PROC.C PID %d\n", (passed_list+i) -> pid);
+    cprintf("IN PROC.C MEMSIZE %d\n", (passed_list+i) -> memsize);
+    }
+
+  }
+
   release(&ptable.lock);
+
+
 }
 
 
