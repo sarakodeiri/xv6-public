@@ -113,7 +113,7 @@ found:
   p->context->eip = (uint)forkret;
 
   acquire(&tickslock);
-  p->ctime1 = ticks; // TODO Might need to protect the read of ticks with a lock
+  p->stime = ticks; // TODO Might need to protect the read of ticks with a lock
   release(&tickslock);
 
   p->etime = 0;
@@ -339,7 +339,8 @@ waitx(int *wtime, int *rtime)
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
-        *wtime = p->etime - p->ctime1 - p->rtime - p->iotime;
+        cprintf("etime = %d, stime = %d, rtime = %d, iotime = %d\n", p->etime, p->stime, p->rtime, p->iotime);
+        *wtime = p->etime - p->stime - p->rtime - p->iotime;
         *rtime = p->rtime;
         pid = p->pid;
         kfree(p->kstack);

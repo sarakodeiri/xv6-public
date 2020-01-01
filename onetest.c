@@ -5,19 +5,21 @@
 
 int main (int argc,char *argv[])
 {
-
- int pid;
- int status=0,a=3,b=4;	
- pid = fork ();
- if (pid == 0)
-   {	
-   exec(argv[1],argv);
-    printf(1, "exec %s failed\n", argv[1]);
+  int w, r, pid;
+  pid = fork();
+  if (pid == 0){
+    // sleep(500);
+    for (int i=0; i<1000; i++){
+        printf(1, "1 sacsd");
     }
-  else
- {
-    status=waitx(&a,&b);
- }  
- printf(1, "Wait Time = %d\n Run Time = %d with Status %d \n",a,b,status); 
- exit();
+      // printf(1, "1 ");
+  }
+
+
+  else if (pid > 0){
+    waitx(&w, &r);
+    printf(1, "Wtime: %d Rtime: %d\n", w, r);
+  }
+  
+  exit();
 }

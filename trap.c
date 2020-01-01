@@ -53,12 +53,14 @@ trap(struct trapframe *tf)
       ticks++;
       wakeup(&ticks);
       release(&tickslock);
-
-        if(myproc()) {
-        if(myproc()->state == RUNNING) //IF STATE IS RUNNING , THEN UPDATE rtime
-          myproc()->rtime++;
-        else if(myproc()->state == SLEEPING) //IF STATE IS SLEEPING , THEN UPDATE wtime
-          myproc()->iotime++;
+      struct proc *temp = myproc();
+        if(temp) {
+          // cprintf("%"temp->state);
+        if(temp->state == RUNNING) //If state is running, update rtime
+          temp->rtime++;
+        else if(temp->state == SLEEPING) //If state is sleeping, update wtime
+          temp->iotime++;
+        
         }
     }
     lapiceoi();
