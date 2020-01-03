@@ -339,9 +339,9 @@ waitx(int *wtime, int *rtime)
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
-        cprintf("etime = %d, stime = %d, rtime = %d, iotime = %d\n", p->etime, p->stime, p->rtime, p->iotime);
         *wtime = p->etime - p->stime - p->rtime - p->iotime;
         *rtime = p->rtime;
+        cprintf("etime = %d, stime = %d, rtime = %d, iotime = %d\n", p->etime, p->stime, p->rtime, *wtime); //:D
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;

@@ -10,7 +10,7 @@ int main (int argc,char *argv[])
   if (pid == 0){
     // sleep(500);
     for (int i=0; i<1000; i++){
-        printf(1, "1 sacsd");
+        printf(1, "1 sacsd\n");
     }
       // printf(1, "1 ");
   }

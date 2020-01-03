@@ -55,7 +55,6 @@ trap(struct trapframe *tf)
       release(&tickslock);
       struct proc *temp = myproc();
         if(temp) {
-          // cprintf("%"temp->state);
         if(temp->state == RUNNING) //If state is running, update rtime
           temp->rtime++;
         else if(temp->state == SLEEPING) //If state is sleeping, update wtime
