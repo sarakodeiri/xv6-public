@@ -89,6 +89,8 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->priority = 60;
+  p->queue_num = 2;
+
 
   release(&ptable.lock);
 
@@ -419,6 +421,27 @@ setpriority(int priority)
 
   yield();
   return old_priority;
+}
+
+int
+nice(int pid, int level)
+{
+  struct proc *p;
+
+  if(level < 1 || level >3)
+    return -1;
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(pid == p->pid ) {
+        p->queue_num = level;
+        break;
+    }
+  
+  release(&ptable.lock);
+  yield();
+  return 0;
 }
 
 //PAGEBREAK: 42

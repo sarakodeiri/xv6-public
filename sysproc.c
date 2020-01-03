@@ -120,3 +120,18 @@ sys_setpriority (void)
 
   return setpriority (pr);
 }
+
+int 
+sys_nice(void)
+{
+  int pid;
+  int level;
+  
+  if(argint(0, &pid) < 0)
+    return 12;
+
+  if(argint(1, &level) < 0)
+    return 13;
+
+  return nice(pid, level);
+}
