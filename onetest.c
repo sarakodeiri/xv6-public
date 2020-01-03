@@ -12,7 +12,6 @@ int main (int argc,char *argv[])
     for (int i=0; i<1000; i++){
         printf(1, "%d\n", i);
     }
-      // printf(1, "1 ");
   }
 
 

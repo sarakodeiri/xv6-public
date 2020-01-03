@@ -104,3 +104,9 @@ sys_waitx(void)
 
   return waitx(wtime,rtime);
 }
+
+int
+sys_cps(void)
+{
+  return cps();
+}
