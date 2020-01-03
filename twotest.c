@@ -12,7 +12,7 @@ main(int argc, char *argv[])
     p3 = fork();
     
     if((p1 || p2 || p3) == 0){
-        setpriority(67);
+        setpriority(200);
         printf(1,"THIS SHOULDNT PRINT %d\n");
         exit();
     }
@@ -22,8 +22,9 @@ main(int argc, char *argv[])
         int temp = 0;
         setpriority(89);
         printf(1,"FIRST: Priority 89 \t Pid: %d\n",getpid());
+        cps();
 
-        for (int i = 0; i < 300000; i++)
+        for (int i = 0; i < 10000; i++)
             temp++;
         
         exit();
@@ -33,8 +34,9 @@ main(int argc, char *argv[])
         int temp = 0;
         setpriority(20);
         printf(1,"SECOND: Priority 20 \t Pid: %d\n",getpid());
+        cps();
         
-        for (int i = 0; i < 300000; i++)
+        for (int i = 0; i < 10000; i++)
             temp++;
         
         exit();
@@ -45,9 +47,10 @@ main(int argc, char *argv[])
         int temp = 0;
         setpriority(51);
         printf(1,"THIRD: Priority 51 \t Pid: %d\n",getpid());
+        cps();
 
         
-        for (int i = 0; i < 300000; i++)
+        for (int i = 0; i < 10000; i++)
             temp++;
         
         exit();
@@ -56,8 +59,9 @@ main(int argc, char *argv[])
 	else if ((p1 && p2 && p3) != 0){ // Parent
         cps();
         sleep(100);
-        cps();
+        // cps();
         wait();
+        // cps();
         exit();
 	}
     exit();
