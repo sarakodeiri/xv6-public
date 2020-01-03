@@ -381,13 +381,13 @@ cps()
   cprintf("name \t pid \t state \t \t priority \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if ( p->state == SLEEPING )
-        cprintf("%s \t %d  \t SLEEPING \t %d \n ", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == RUNNING )
-        cprintf("%s \t %d  \t RUNNING \t %d \n ", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t RUNNING \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == RUNNABLE )
-        cprintf("%s \t %d  \t RUNNABLE \t %d \n ", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t RUNNABLE \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == ZOMBIE )
-        cprintf("%s \t %d  \t ZOMBIE \t %d \n ", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t ZOMBIE \t %d \n", p->name, p->pid, p->priority);
   }
   
   release(&ptable.lock);
@@ -407,6 +407,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *temp;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -414,11 +415,23 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
+    struct proc *max;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+      
+      max = p; //Find runnable process
+
+      for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
+        if(q->state != RUNNABLE)
+          continue;
+        if (temp->priority < max->priority) 
+          max = temp;
+      }
+
+      p = max;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -438,6 +451,7 @@ scheduler(void)
 
   }
 }
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
