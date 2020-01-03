@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 60;
 
   release(&ptable.lock);
 
@@ -376,23 +377,48 @@ cps()
   // Enable interrupts on this processor.
   sti();
 
-    // Loop over process table looking for process with pid.
   acquire(&ptable.lock);
   cprintf("name \t pid \t state \t \t priority \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if ( p->state == SLEEPING )
-        cprintf("%s \t %d  \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t \t %d  \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == RUNNING )
-        cprintf("%s \t %d  \t RUNNING \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t \t %d  \t RUNNING \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == RUNNABLE )
-        cprintf("%s \t %d  \t RUNNABLE \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t \t %d  \t RUNNABLE \t %d \n", p->name, p->pid, p->priority);
       else if ( p->state == ZOMBIE )
-        cprintf("%s \t %d  \t ZOMBIE \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t \t %d  \t ZOMBIE \t %d \n", p->name, p->pid, p->priority);
   }
   
   release(&ptable.lock);
   
-  return 24;
+  return 0;
+}
+
+int
+setpriority(int priority)
+{
+  if (priority < 0 || priority > 100){
+    cprintf("Can't change priority to %d\n", priority);
+    exit();
+  }
+  struct proc *proc = myproc();
+  struct proc *p;
+  int old_priority = -1;
+  
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    
+    if(p->pid == proc->pid ) {
+      old_priority = p->priority;
+        p->priority = priority;
+        break;
+    }
+  }
+  release(&ptable.lock);
+
+  yield();
+  return old_priority;
 }
 
 //PAGEBREAK: 42
@@ -425,7 +451,7 @@ scheduler(void)
       max = p; //Find runnable process
 
       for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
-        if(q->state != RUNNABLE)
+        if(temp->state != RUNNABLE)
           continue;
         if (temp->priority < max->priority) 
           max = temp;

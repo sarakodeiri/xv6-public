@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_onetest\
 	_cpstest\
+	_twotest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -257,6 +258,7 @@ EXTRA=\
 	.gdbinit.tmpl gdbutil\
 	onetest.c\
 	cpstest.c\
+	twotest.c\
 
 dist:
 	rm -rf dist

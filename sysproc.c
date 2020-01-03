@@ -110,3 +110,13 @@ sys_cps(void)
 {
   return cps();
 }
+
+int
+sys_setpriority (void)
+{
+  int pr;
+  if(argint(0, &pr) < 0)
+    return -1;
+
+  return setpriority (pr);
+}
