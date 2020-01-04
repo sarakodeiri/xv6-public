@@ -184,6 +184,8 @@ UPROGS=\
 	_onetest\
 	_cpstest\
 	_twotest\
+	_nicetest\
+	_threetest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -259,6 +261,8 @@ EXTRA=\
 	onetest.c\
 	cpstest.c\
 	twotest.c\
+	nicetest.c\
+	threetest.c\
 
 dist:
 	rm -rf dist

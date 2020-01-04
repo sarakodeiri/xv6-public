@@ -380,16 +380,16 @@ cps()
   sti();
 
   acquire(&ptable.lock);
-  cprintf("name \t pid \t state \t \t priority \n");
+  cprintf("name \t pid \t state \t priority \t queue \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if ( p->state == SLEEPING )
-        cprintf("%s \t \t %d  \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t SLEEPING \t %d \t %d \n", p->name, p->pid, p->priority, p->queue_num);
       else if ( p->state == RUNNING )
-        cprintf("%s \t \t %d  \t RUNNING \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t RUNNING \t %d \t %d \n", p->name, p->pid, p->priority, p->queue_num);
       else if ( p->state == RUNNABLE )
-        cprintf("%s \t \t %d  \t RUNNABLE \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t RUNNABLE \t %d \t %d \n", p->name, p->pid, p->priority, p->queue_num);
       else if ( p->state == ZOMBIE )
-        cprintf("%s \t \t %d  \t ZOMBIE \t %d \n", p->name, p->pid, p->priority);
+        cprintf("%s \t %d  \t ZOMBIE \t %d \t %d \n", p->name, p->pid, p->priority, p->queue_num);
   }
   
   release(&ptable.lock);
@@ -444,6 +444,54 @@ nice(int pid, int level)
   return 0;
 }
 
+
+struct proc* findReadyProcess(int *index1, int *index2, int *index3, uint *priority) {
+  int i;
+  struct proc* proc2,*proc3;
+  int min_start_time = ticks;
+
+  for (proc3 = ptable.proc; proc3 < &ptable.proc[NPROC]; proc3++)
+  {
+      if(proc3->queue_num == 2 && proc3->state == RUNNABLE && proc3->stime < min_start_time){
+          min_start_time = proc3->stime;
+      }
+  }
+  
+
+notfound:
+  for (i = 0; i < NPROC; i++) {
+    switch(*priority) {
+      case 1:
+        proc2 = &ptable.proc[(*index1 + i) % NPROC];
+        if (proc2->state == RUNNABLE && proc2->priority == *priority) {
+          *index1 = (*index1 + 1 + i) % NPROC;
+          return proc2; // found a runnable process with appropriate priority
+        }
+      case 2:
+        proc2 = &ptable.proc[(*index2 + i) % NPROC];
+        if (proc2->state == RUNNABLE && proc2->priority == *priority && proc2->stime == min_start_time) {
+          *index2 = (*index2 + 1 + i) % NPROC;
+          return proc2; // found a runnable process with appropriate priority
+        }
+      case 3:
+        proc2 = &ptable.proc[(*index3 + i) % NPROC];
+        if (proc2->state == RUNNABLE && proc2->priority == *priority){
+          *index3 = (*index3 + 1 + i) % NPROC;
+          return proc2; // found a runnable process with appropriate priority
+        }
+    }
+  }
+  if (*priority == 3) {//did not find any process on any of the prorities
+    *priority = 3;
+    return 0;
+  }
+  else {
+    *priority += 1; //will try to find a process at a lower priority (highter value of priority)
+    goto notfound;
+  }
+  return 0;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -456,7 +504,6 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *temp;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -464,27 +511,28 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
-    struct proc *max;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-      
-      max = p; //Find runnable process
 
-      for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
-        if(temp->state != RUNNABLE)
-          continue;
-        if (temp->priority < max->priority) 
-          max = temp;
-      }
+      struct proc *foundP = 0;
 
-      p = max;
+        uint priority = 1;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+        int index1 = 0;
+        int index2 = 0;
+        int index3 = 0;
+
+        foundP = findReadyProcess(&index1, &index2, &index3, &priority);
+        if (foundP != 0)
+            p = foundP;
+        else{
+            if(p->state != RUNNABLE)
+            continue;
+        }
+
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
@@ -500,7 +548,6 @@ scheduler(void)
 
   }
 }
-
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
